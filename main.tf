@@ -16,21 +16,13 @@ terraform {
 }
 
 provider "aws" {
-  alias  = "east"
   region = "us-east-1"
+
+  assume_role {
+    role_arn = "arn:aws:iam::441627939155:role/OrganizationAccountAccessRole"
+  }
 }
 
-provider "aws" {
-  alias  = "west"
-  region = "us-west-2"
-}
-
-resource "aws_s3_bucket" "east_bucket" {
-  provider = aws.east
-  bucket   = "davidpoku-east-bucket-2026"
-}
-
-resource "aws_s3_bucket" "west_bucket" {
-  provider = aws.west
-  bucket   = "davidpoku-west-bucket-2026"
+resource "aws_s3_bucket" "security_tooling_test" {
+  bucket = "davidpoku-security-tooling-test-2026"
 }

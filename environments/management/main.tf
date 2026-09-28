@@ -65,3 +65,7 @@ resource "aws_cloudtrail" "org_trail" {
   include_global_service_events = true
   enable_log_file_validation    = true
 }
+
+resource "aws_guardduty_organization_admin_account" "delegate" {
+  admin_account_id = "441627939155"
+}

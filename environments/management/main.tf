@@ -56,3 +56,12 @@ resource "aws_organizations_policy_attachment" "workload_deny_regions" {
   policy_id = aws_organizations_policy.deny_regions.id
   target_id = "620759833799"
 }
+
+resource "aws_cloudtrail" "org_trail" {
+  name                          = "org-wide-trail"
+  s3_bucket_name                = "davidpoku-org-cloudtrail-logs-2026"
+  is_organization_trail         = true
+  is_multi_region_trail         = true
+  include_global_service_events = true
+  enable_log_file_validation    = true
+}

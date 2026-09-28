@@ -1,3 +1,4 @@
+
 terraform {
   required_providers {
     aws = {
@@ -7,18 +8,20 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "davidpoku-terraform-state-2026"
-    key            = "environments/app/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
+    bucket       = "davidpoku-terraform-state-2026"
+    key          = "environments/app/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 
 provider "aws" {
   region = "us-east-1"
 }
-
+resource "aws_guardduty_detector" "main" {
+  enable = true
+}
 data "terraform_remote_state" "network" {
   backend = "s3"
 
@@ -39,7 +42,7 @@ resource "aws_security_group" "app" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["72.89.28.185/32"]
   }
 
   egress {

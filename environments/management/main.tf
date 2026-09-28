@@ -7,11 +7,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "davidpoku-terraform-state-2026"
-    key            = "environments/management/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
+    bucket       = "davidpoku-terraform-state-2026"
+    key          = "environments/management/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 
@@ -28,8 +28,8 @@ resource "aws_organizations_policy" "deny_regions" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "DenyNonApprovedRegions"
-        Effect    = "Deny"
+        Sid    = "DenyNonApprovedRegions"
+        Effect = "Deny"
         NotAction = [
           "iam:*",
           "organizations:*",
@@ -68,4 +68,41 @@ resource "aws_cloudtrail" "org_trail" {
 
 resource "aws_guardduty_organization_admin_account" "delegate" {
   admin_account_id = "441627939155"
+}
+resource "aws_guardduty_detector" "main" {
+  enable = true
+
+}
+resource "aws_securityhub_organization_admin_account" "main" {
+  admin_account_id = "441627939155"
+}
+
+resource "aws_organizations_policy" "deny_security_control_changes" {
+  name        = "DenySecurityControlChanges"
+  description = "Prevent workload accounts from disabling centralized security controls"
+  type        = "SERVICE_CONTROL_POLICY"
+
+  content = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenySecurityControlChanges"
+        Effect = "Deny"
+
+        Action = [
+          "cloudtrail:StopLogging",
+          "cloudtrail:DeleteTrail",
+          "guardduty:DeleteDetector",
+          "securityhub:DisableSecurityHub"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_organizations_policy_attachment" "workload_deny_security_control_changes" {
+  policy_id = aws_organizations_policy.deny_security_control_changes.id
+  target_id = "620759833799"
 }

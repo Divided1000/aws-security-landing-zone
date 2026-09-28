@@ -59,3 +59,10 @@ resource "aws_s3_bucket_policy" "cloudtrail_logs_policy" {
     ]
   })
 }
+
+data "aws_guardduty_detector" "main" {}
+
+resource "aws_guardduty_organization_configuration" "main" {
+  detector_id                      = data.aws_guardduty_detector.main.id
+  auto_enable_organization_members = "ALL"
+}
